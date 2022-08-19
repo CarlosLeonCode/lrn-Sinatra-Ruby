@@ -18,6 +18,7 @@ end
 get '/song/*genre/*' do
   # /song/genre/files/song1.mp3
   "Song found -> #{params['splat']}"
+
   # OUT -> ["files/song1.mp3"]
 end
 get '/picture/**' do |path, splat|
@@ -33,4 +34,15 @@ end
 get /\/phrase\/([\w]+)/ do |captures|
   # /phrase/saySomething
   captures
+end
+
+# * Query params               | -----------------
+get '/song/:genre?' do
+  # /song/dubstep?artist=AKVMA&album=last
+  "Queries -> #{params}"
+  # OUT -> Queries -> {"artist"=>"AKVMA", "album"=>"last", "genre"=>"dubstep"}
+end
+get '/song?' do
+  # /song?name=puppetmaster
+  "Song name -> #{params[:name]}"
 end
