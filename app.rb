@@ -1,48 +1,59 @@
 require "sinatra"
-require "sinatra/reloader"
+require "sinatra/activerecord"
+require "sinatra/reloader" if development?
+require "httparty"
+require "dotenv/load"
+require "./models/movie"
 
-# * Normal route                | -----------------
-get '/' do
-  'hello World!'
-end
+set :database, {
+  adapter: "sqlite3",
+  database: "db/development.sqlite3"
+}
 
-# * Accesing to parameters      | -----------------
-get '/hi/:name' do
-  "Hello #{params['name']}"
-end
-get '/say/:phrase' do |prm|
-  "Hey!, #{prm}"
-end
-
-# * Patterns                    | -----------------
-get '/song/*genre/*' do
-  # /song/genre/files/song1.mp3
-  "Song found -> #{params['splat']}"
-
-  # OUT -> ["files/song1.mp3"]
-end
-get '/picture/**' do |path, splat|
-  # /picture/landscapes/mountains/mount.png
-  splat
+get "/" do
+  "Hello Sinatra"
 end
 
-# * Regular Expressions         | -----------------
-get /\/letter\/([\w])/ do
-  # /letter/s
-  params['captures']
-end
-get /\/phrase\/([\w]+)/ do |captures|
-  # /phrase/saySomething
-  captures
+get "/movies" do
+  @movies = Movie.all
+  puts "Movies found: #{@movies.inspect}"
+
+  erb :"movies/index"
 end
 
-# * Query params               | -----------------
-get '/song/:genre?' do
-  # /song/dubstep?artist=AKVMA&album=last
-  "Queries -> #{params}"
-  # OUT -> Queries -> {"artist"=>"AKVMA", "album"=>"last", "genre"=>"dubstep"}
+get "/movies/new" do
+  erb :"movies/new"
 end
-get '/song?' do
-  # /song?name=puppetmaster
-  "Song name -> #{params[:name]}"
+
+post "/movies" do
+  Movie.create(title: params[:title], genre: params[:genre])
+
+  redirect "/movies"
+end
+
+get "/movies/:id" do
+  @movie = Movie.find(params[:id])
+
+  erb :"movies/show"
+end
+
+get "/movies/:id/edit" do
+  @movie = Movie.find(params[:id])
+
+  erb :"movies/edit"
+end
+
+post "/movies/:id" do
+  puts params.to_json
+  @movie = Movie.find(params[:id])
+  @movie.update(title: params[:title], genre: params[:genre])
+
+  redirect "/movies/#{@movie.id}"
+end
+
+delete "/movies/:id" do
+  @movie = Movie.find(params[:id])
+  @movie.destroy
+
+  redirect "/movies"
 end

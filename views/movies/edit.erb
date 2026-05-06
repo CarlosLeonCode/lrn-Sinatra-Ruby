@@ -1,0 +1,11 @@
+<form method="POST" action="/movies/<%= @movie.id %>">
+  <input type="text" name="title" value="<%= @movie.title %>">
+  <input type="text" name="genre" value="<%= @movie.genre %>">
+
+  <button>Update</button>
+</form>
+
+<form method="POST" action="/movies/<%= @movie.id %>">
+    <input type="hidden" name="_method" value="DELETE">
+    <button>Delete</button>
+  </form>
